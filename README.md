@@ -50,3 +50,13 @@ value = rw.Step()
 value = rw.Step()
 // _value_ will now be it's previous value plus or minus 1%.
 ```
+
+# Development
+
+## Running tests
+
+Include race condition detection when testing with:
+
+```bash
+go test -race
+```

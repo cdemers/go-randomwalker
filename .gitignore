@@ -318,4 +318,5 @@ _Pvt_Extensions
 # ---> VisualStudioCode
 .settings
 
-
+.idea
+*.nogit*

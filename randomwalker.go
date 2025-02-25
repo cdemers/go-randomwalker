@@ -12,6 +12,7 @@ package randomwalker
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -24,6 +25,7 @@ type randomer interface {
 
 // RandomWalker represents one instance of a random walk generator.
 type RandomWalker struct {
+	mu         sync.Mutex
 	current    float32
 	min        float32
 	max        float32
@@ -45,21 +47,23 @@ func NewRandomWalker(origin, min, max, maxDynPcnt float32) *RandomWalker {
 // trying to simulate. Once created, you can call Step() on this object to get
 // a random walk value.
 func NewRandomWalkerWithRandSource(origin, min, max, maxDynPcnt float32, source *rand.Source) *RandomWalker {
-	rw := RandomWalker{
+	return &RandomWalker{
 		current:    origin,
 		min:        min,
 		max:        max,
 		maxDynPcnt: maxDynPcnt,
 		random:     rand.New(*source),
 	}
-	return &rw
 }
 
 // Step does one step of a random walk and returns the resulting value.
 func (rw *RandomWalker) Step() float32 {
+	rw.mu.Lock()
+	defer rw.mu.Unlock()
+
 	maxDynamic := rw.current * rw.maxDynPcnt
 
-	// BUG(cdemers): The pseudorandom generator seems to be skewed on the 
+	// BUG(cdemers): The pseudorandom generator seems to be skewed on the
 	// low side by about 3%, which is extremely strange.
 	rw.current += (rw.random.Float32()*2 - 1) * maxDynamic
 

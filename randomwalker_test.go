@@ -3,6 +3,7 @@ package randomwalker
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"testing"
 )
 
@@ -54,4 +55,19 @@ func ExampleRandomWalker_Step() {
 	value := rw.Step()
 	fmt.Println(value)
 	// Output: 10
+}
+
+func TestRandomWalker_Concurrency(t *testing.T) {
+	rw := NewRandomWalker(10, 5, 15, 0.1)
+	var wg sync.WaitGroup
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				rw.Step()
+			}
+		}()
+	}
+	wg.Wait()
 }
